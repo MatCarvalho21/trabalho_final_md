@@ -19,8 +19,6 @@ def cal_dist(lat_inicial:float, lon_inicial:float, lat_final:float, lon_final:fl
 
     return round(dist_real, 2)
 
-print(cal_dist(36.822200775, 7.8091697693, 41.275333, 28.752))
-
 
 def cal_horas(dist_km:float) -> float:
     """
