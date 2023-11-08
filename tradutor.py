@@ -39,6 +39,7 @@ dataframe_02 = pd.DataFrame(data=lista_de_dados, columns=lista_de_colunas)
 dataframe_01["route_id"] = dataframe_02["route_id"]
 
 dataframe_final = pd.merge(dataframe_01, dataframe_02, on='route_id', how='inner')
+dataframe_final = dataframe_final.groupby("route_id", as_index=False).first().reset_index(drop=True)
 dataframe_final_brasil = dataframe_final[dataframe_final["source_airport_country"] == "BR"].reset_index(drop=True)
 
 dataframe_final.to_csv("database\\dataframe_final_mundo.csv")
