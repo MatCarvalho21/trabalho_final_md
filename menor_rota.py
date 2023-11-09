@@ -1,5 +1,6 @@
 from tradutor import dataframe_final
 from duracao_das_viagens import cal_dist, cal_horas
+import math
 
 lista_lat_inicial = list(dataframe_final["source_airport_lat"])
 lista_lon_inicial = list(dataframe_final["source_airport_lon"])
@@ -26,27 +27,14 @@ for index in range(0, len(lista_lat_inicial)):
 #criando as colunas com os novos dados 
 dataframe_final["distancia"] = lista_distancias
 dataframe_final["tempo_de_viagem"] = lista_tempo_de_viagem
+dataframe_final["peso"] = max(lista_distancias) + 1
 
 #excluindo linhas, que por algum problema, não foi possível calcular ou a distância, ou o tempo de viagem
 dataframe_final = dataframe_final.dropna(thresh=2).reset_index(drop=True)
 
-"""
-lista_de_cidades_ordenadas_nao_visitadas = ["Paris", "Rio De Janeiro", "Miami", "Sao Paulo", "Belo Horizonte", "Doha"]
-
-while len(lista_de_cidades_ordenadas_nao_visitadas) > 1:
-    cidade_inicial = lista_de_cidades_ordenadas_nao_visitadas[0]
-    cidade_final = lista_de_cidades_ordenadas_nao_visitadas[1]
-    dataframe_final_2 = dataframe_final[dataframe_final["source_airport_city"] == cidade_inicial]
-    dataframe_final_3 = dataframe_final_2[dataframe_final_2["destination_airport_city"] == cidade_final]
-
-    try:
-        print(f"A menor distância entre {cidade_inicial} e {cidade_final} é {dataframe_final_3['distancia'].min()} quilômetros e esse voo vai durar {dataframe_final_3['tempo_de_viagem'].min()} horas.")
-    except:
-        print(f"Não tem voo direto entre {cidade_inicial} e {cidade_final}.")
-
-    lista_de_cidades_ordenadas_nao_visitadas.pop(lista_de_cidades_ordenadas_nao_visitadas.index(cidade_inicial))
-"""
 grafo = dict()
+dict_dijskra = dict()
+
 lista_de_aeroportos_unicos = list(set(dataframe_final[" source airport"])) 
 for cada_aeroporto in lista_de_aeroportos_unicos:
     grafo[cada_aeroporto] = dict()
@@ -58,38 +46,32 @@ for cada_aeroporto in lista_de_aeroportos_unicos:
     for cada_destino, cada_distancia in zip(lista_de_destinos, lista_de_distancias):
         grafo[cada_aeroporto][cada_destino] = cada_distancia
 
-import sys
+    dict_dijskra[cada_aeroporto] = dict()
+    dict_dijskra[cada_aeroporto]["ORIGEM"] = 0
+    dict_dijskra[cada_aeroporto]["PESO"] = max(lista_distancias) + 1
 
-# Função do algoritmo de Dijkstra
-def calcular_dijkstra(grafo, origem):
-    try:
-        # Inicialização das distâncias com infinito, exceto a origem que é zero
-        distancias = {v: sys.maxsize for v in grafo}
-        distancias[origem] = 0
+origem = "AAL"
+destino = "CGH"
 
-        # Conjunto de vértices visitados
-        visitados = set()
+dict_dijskra[origem]["PESO"] = 0
 
-        while visitados != set(distancias):
-            # Encontra o vértice não visitado com menor distância atual
-            vertice_atual = None
-            menor_distancia = sys.maxsize
-            for v in grafo:
-                if v not in visitados and distancias[v] < menor_distancia:
-                    vertice_atual = v
-                    menor_distancia = distancias[v]
+vertice_da_vez = origem
+chave = 0
+menor_peso = max(lista_distancias) + 1
+while True:
+    print(vertice_da_vez)
+    dicionario_auxiliar = dict()
 
-            # Marca o vértice atual como visitado
-            visitados.add(vertice_atual)
+    lista_de_conexoes = list(grafo[vertice_da_vez].keys())
+    lista_pesos = list(grafo[vertice_da_vez].values())
 
-            # Atualiza as distâncias dos vértices vizinhos
-            for vizinho, peso in grafo[vertice_atual].items():
-                if distancias[vertice_atual] + peso < distancias[vizinho]:
-                    distancias[vizinho] = distancias[vertice_atual] + peso
+    for cada_conexao, cada_peso in zip(lista_de_conexoes, lista_pesos):
 
-        # Retorna as distâncias mais curtas a partir da origem
-        return distancias
-    except:
-        return None
+        if cada_peso + dict_dijskra[vertice_da_vez]["PESO"] < dict_dijskra[cada_conexao]["PESO"]:
+            dict_dijskra[cada_conexao]["PESO"] = cada_peso + dict_dijskra[vertice_da_vez]["PESO"]
+            dicionario_auxiliar[cada_conexao] = cada_peso + dict_dijskra[vertice_da_vez]["PESO"]
 
-print(grafo["AJU"])
+
+
+    if vertice_da_vez == destino:
+        break
