@@ -1,1 +1,3 @@
-# trabalho_final_md
+# Trabalho Final de Matemática Discreta
+
+Repositório criado para a elaboração do trabalho final referente à disciplina **Matemática Discreta.
