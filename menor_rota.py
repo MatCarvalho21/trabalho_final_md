@@ -1,6 +1,8 @@
 from tradutor import dataframe_final
 from duracao_das_viagens import cal_dist, cal_horas
 import math
+import numpy as np
+
 
 lista_lat_inicial = list(dataframe_final["source_airport_lat"])
 lista_lon_inicial = list(dataframe_final["source_airport_lon"])
@@ -75,3 +77,67 @@ while True:
 
     if vertice_da_vez == destino:
         break
+
+
+def dijkstra(grafo: dict, origem: str | int, destino: str | int):
+    # Inicializador:
+    rotas_pesos = dict()
+    for vertice in grafo.keys():
+        rotas_pesos[vertice] = np.inf
+    rotas_pesos[origem] = 0
+
+    lista_rotas = list()
+    visitados = set()
+    nao_visitados = set(grafo.keys())
+    vertice_atual = origem
+
+    while destino != vertice_atual:
+        vizinhos = list(grafo[vertice_atual].keys())
+
+        # Fixando o vértice atual
+        visitados.add(vertice_atual)
+        if vertice_atual in nao_visitados:
+            nao_visitados.remove(vertice_atual)
+
+        # Rotulando vizinhos
+        for vizinho in vizinhos:
+            peso_vizinho = grafo[vertice_atual][vizinho]
+            if rotas_pesos[vizinho] > rotas_pesos[vertice_atual] + peso_vizinho:
+                rotas_pesos[vizinho] = rotas_pesos[vertice_atual] + peso_vizinho
+
+            # Criando a lista de rotas para refazer a rota
+            if abs(rotas_pesos[vertice_atual] - rotas_pesos[vizinho]) == grafo[vertice_atual][vizinho]:
+                menor_rota_atual = [vertice_atual, vizinho, rotas_pesos[vizinho]]
+                lista_rotas.append(menor_rota_atual)
+
+
+        # Escolhendo o novo vértice com o menor peso
+        menor_caminho = np.inf
+
+        for cada_vertice in nao_visitados:
+            if rotas_pesos[cada_vertice] < menor_caminho:
+                menor_caminho = rotas_pesos[cada_vertice]
+                novo_vertice_atual = cada_vertice
+
+        vertice_atual = novo_vertice_atual
+
+    # Refazendo o caminho de trás para frente
+    lista_rotas.reverse()
+    rota_final = [destino]
+
+    while origem != rota_final[-1]:
+        vertice_selecionado = rota_final[-1]
+
+        for cada_menor_rota in lista_rotas:
+            vertice_1 = cada_menor_rota[0]
+            vertice_2 = cada_menor_rota[1]
+    
+            if vertice_2 == vertice_selecionado:
+                if rotas_pesos[vertice_1] == rotas_pesos[vertice_selecionado] - grafo[vertice_1][vertice_2]:
+                    rota_final.append(vertice_1)
+                    break
+
+    rota_final.reverse()
+
+    return rota_final, rotas_pesos[destino]
+
