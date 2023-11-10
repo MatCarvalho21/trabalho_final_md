@@ -79,7 +79,25 @@ while True:
         break
 
 
-def dijkstra(grafo: dict, origem: str | int, destino: str | int):
+def dijkstra(grafo: dict, origem: str | int, destino: str | int) -> tuple(list, int):
+    """Recriação do algorítmo de Dijkstra.
+
+    Parameters
+    ----------
+    grafo : dict
+        O grafo com pesos desejado.
+    origem : str or int
+        o vértice de origem.
+    destino : str or int
+        o vértice de destino.
+
+    Returns
+    -------
+    tuple
+        uma tupla contendo o menor caminho e a distância do caminho, sendo que cada elemento da lista
+        é um vértice do grafo, onde o primeiro é a origem e o último o destino, cada elemento representa
+        o próximo vértice do caminho a ser percorrido.
+    """
     # Inicializador:
     rotas_pesos = dict()
     for vertice in grafo.keys():
