@@ -159,3 +159,4 @@ def dijkstra(grafo: dict, origem: str | int, destino: str | int) -> tuple(list, 
 
     return rota_final, rotas_pesos[destino]
 
+print(dijkstra(grafo, "PLU", "JFK"))
